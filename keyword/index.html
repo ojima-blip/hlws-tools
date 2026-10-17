@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>私の「好き」から見つける経済経営学部</title>
+    <meta name="description" content="気になるキーワードから、経済経営学部で学べる分野や関連するモジュールを探すことができるページです。">
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../assets/css/style.css">
+  </head>
+  <body class="tool-keyword">
+    <header class="tool-page-header">
+      <a class="tool-page-title" href="../keyword/" aria-label="学びキーワード診断">
+        学びキーワード診断
+      </a>
+      <nav class="tool-page-nav" aria-label="ツールページナビ">
+        <a href="../">ホーム</a>
+        <a href="../diagnosis/">3分診断</a>
+        <a href="../planner/">履修プランナー</a>
+      </nav>
+    </header>
+
+    <main class="app">
+      <section class="topbar">
+        <div class="title-block">
+          <p class="lead">気になる言葉を選ぶと、近い学びの領域、関連する問い、授業、相談で聞くとよいことが表示されます。</p>
+        </div>
+      </section>
+
+      <div class="layout">
+        <section class="panel keyword-tag-panel" aria-labelledby="selector-title">
+          <div class="section-head">
+            <div class="section-title">
+              <h2 id="selector-title">気になる言葉を3つまで選ぶ</h2>
+            </div>
+            <div class="tag-panel-actions">
+              <div class="counter" aria-live="polite">
+                <strong id="count">0/3</strong>
+                <span>選択中</span>
+              </div>
+              <button class="ghost-button" type="button" id="resetButton">リセット</button>
+            </div>
+          </div>
+          <div id="keywordGroups"></div>
+        </section>
+
+        <aside class="panel result-panel" aria-live="polite">
+          <div class="result-head">
+            <div class="section-title">
+              <h2>あなたに近いモジュール</h2>
+            </div>
+            <div class="selected-list" id="selectedList"></div>
+          </div>
+          <div id="results" class="empty">キーワードを選ぶと、ここに結果が表示されます。</div>
+          <div class="common" id="commonMessage"></div>
+        </aside>
+      </div>
+
+      <div class="actions">
+        <button class="ghost-button" type="button" id="printButton" disabled>印刷</button>
+        <button class="primary-button" type="button" id="shareButton" disabled>結果URL</button>
+      </div>
+    </main>
+
+  
+    <script src="../assets/js/keyword.js" defer></script>
+  </body>
+</html>

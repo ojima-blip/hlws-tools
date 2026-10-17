@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>履修モジュールプランナー</title>
+    <meta name="description" content="モジュールや科目を組み合わせながら、経済経営学部での学び方や履修イメージを考えるためのページです。">
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../assets/css/style.css">
+  </head>
+  <body class="tool-planner">
+    <header class="tool-page-header">
+      <a class="tool-page-title" href="../planner/" aria-label="履修モジュールプランナー">
+        履修モジュールプランナー
+      </a>
+      <nav class="tool-page-nav" aria-label="ツールページナビ">
+        <a href="../">ホーム</a>
+        <a href="../diagnosis/">3分診断</a>
+        <a href="../keyword/">キーワード診断</a>
+      </nav>
+    </header>
+
+    <main class="app-shell">
+      <aside class="control-panel" aria-label="条件">
+        <section class="panel-section module-panel">
+          <div class="section-heading">
+            <h2>モジュール</h2>
+            <button class="text-button" type="button" id="toggleAllModules">解除</button>
+          </div>
+          <div class="module-grid" id="moduleList"></div>
+        </section>
+
+        <section class="panel-section compact-controls filter-panel">
+          <div>
+            <h2>学期</h2>
+            <div class="segmented" id="semesterControls">
+              <label>
+                <input type="radio" name="semester" value="春">
+                <span>春</span>
+              </label>
+              <label>
+                <input type="radio" name="semester" value="秋">
+                <span>秋</span>
+              </label>
+            </div>
+          </div>
+          <div>
+            <h2>年次</h2>
+            <div class="segmented" id="yearControls">
+              <label><input type="radio" name="year" value="2"><span>2</span></label>
+              <label><input type="radio" name="year" value="3"><span>3</span></label>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel-section completed-panel">
+          <div class="section-heading">
+            <h2>履修済み</h2>
+            <button class="text-button" type="button" id="clearCompleted">解除</button>
+          </div>
+          <input class="search-input" type="search" id="completedSearch" placeholder="科目名で絞り込み">
+          <div class="completed-list" id="completedList"></div>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <div class="dashboard-grid">
+          <section class="main-panel">
+            <section class="metrics-grid" aria-live="polite">
+              <article class="metric-card">
+                <span class="metric-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false">
+                    <path d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5"></path>
+                    <path d="M12 12l4.5-5"></path>
+                    <path d="M8.5 16h7"></path>
+                  </svg>
+                </span>
+                <div>
+                  <span class="metric-label">総単位</span>
+                  <strong><span id="headerTotal">0</span><small>単位</small></strong>
+                </div>
+              </article>
+              <article class="metric-card">
+                <span class="metric-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false">
+                    <path d="M8 5h12"></path>
+                    <path d="M8 12h12"></path>
+                    <path d="M8 19h12"></path>
+                    <path d="M4 5h.01"></path>
+                    <path d="M4 12h.01"></path>
+                    <path d="M4 19h.01"></path>
+                  </svg>
+                </span>
+                <div>
+                  <span class="metric-label">候補科目</span>
+                  <strong><span id="headerCourses">0</span><small>科目</small></strong>
+                </div>
+              </article>
+              <article class="metric-card">
+                <span class="metric-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false">
+                    <rect x="4" y="5" width="16" height="15" rx="2"></rect>
+                    <path d="M8 3v4"></path>
+                    <path d="M16 3v4"></path>
+                    <path d="M4 10h16"></path>
+                    <path d="M8 14h3"></path>
+                    <path d="M13 14h3"></path>
+                  </svg>
+                </span>
+                <div>
+                  <span class="metric-label">開講枠</span>
+                  <strong><span id="slotCount">0</span><small>枠</small></strong>
+                </div>
+              </article>
+              <article class="metric-card metric-card-danger">
+                <span class="metric-icon" aria-hidden="true">!</span>
+                <div>
+                  <span class="metric-label">重複（衝突）</span>
+                  <strong><span id="conflictCount">0</span><small>件</small></strong>
+                </div>
+              </article>
+            </section>
+
+            <div class="toolbar-row">
+              <section class="action-row planner-actions" aria-label="操作">
+                <button type="button" class="secondary-button" id="resetButton">リセット</button>
+                <button type="button" class="secondary-button" id="copyButton">URLコピー</button>
+                <button type="button" class="secondary-button" id="printButton">印刷</button>
+              </section>
+
+              <nav class="tabs" aria-label="表示切替">
+                <button type="button" class="tab-button active" data-tab="plan">履修計画</button>
+                <button type="button" class="tab-button" data-tab="faculty">学部情報</button>
+              </nav>
+            </div>
+
+            <section class="tab-panel" id="planPanel">
+              <div class="alerts" id="alertList" aria-live="polite"></div>
+
+              <section class="content-section schedule-section">
+                <div class="section-heading">
+                  <h2>時間割</h2>
+                </div>
+                <div class="table-scroll">
+                  <table class="schedule-table" id="scheduleTable"></table>
+                </div>
+              </section>
+            </section>
+
+            <section class="tab-panel hidden" id="facultyPanel">
+              <div class="faculty-grid" id="facultyInfo"></div>
+            </section>
+          </section>
+
+          <aside class="insight-panel" aria-label="サマリーと抽出結果">
+            <section class="content-section summary-card">
+              <div class="section-heading">
+                <h2>単位サマリー</h2>
+              </div>
+              <div class="summary-grid" id="summaryGrid"></div>
+              <div class="total-box">
+                <span>総単位</span>
+                <strong><span id="totalCredits">0</span><small>単位</small></strong>
+              </div>
+            </section>
+
+            <section class="content-section result-card">
+              <div class="section-heading">
+                <h2>抽出結果の科目一覧</h2>
+              </div>
+              <div class="table-scroll">
+                <table class="result-table">
+                  <thead>
+                    <tr>
+                      <th>モジュール</th>
+                      <th>科目名</th>
+                      <th>年次</th>
+                      <th>学期</th>
+                      <th>開講枠</th>
+                      <th>単位</th>
+                    </tr>
+                  </thead>
+                  <tbody id="resultBody"></tbody>
+                </table>
+              </div>
+            </section>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    
+  
+    <script src="../assets/js/planner.js" defer></script>
+  </body>
+</html>
