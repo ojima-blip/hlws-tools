@@ -1,117 +1,167 @@
 <!doctype html>
 <html lang="ja">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>経済経営学部 学びナビ</title>
-    <meta name="description" content="創価大学 経済経営学部の学びを、診断・キーワード・履修プランナーでわかりやすく体験できるサイトです。">
-    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="./assets/css/style.css">
-  </head>
-  <body class="tool-home">
-    <header class="home-topbar">
-      <a class="home-brand" href="./" aria-label="トップページ">
-        <span class="brand-symbol" aria-hidden="true"></span>
-        <span>
-          <strong>経済経営学部 学びナビ</strong>
-          <small>経済経営学部企画</small>
-        </span>
-      </a>
-      <nav class="home-links" aria-label="ページ内メニュー">
-        <a href="#tools">ツール</a>
-        <a href="#steps">使い方</a>
-        <a href="./planner/">履修プランナー</a>
-      </nav>
-    </header>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>自分の軸と学びの地図｜HLWS2</title>
+<meta name="description" content="ヒューマニスティック・リーダーシップWS2の授業用ページ。Gemとの対話で大事にしていることを言葉にし、学びの地図でモジュールとのつながりを見ます。">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<style>
+  :root {
+    --ink: #16223a; --muted: #5b6577; --rule: #d8dee8; --paper: #f4f6f9; --surface: #ffffff;
+    --navy: #16223a; --plate: #f3c623; --blue: #1e3a8a; --red: #c0392b; --amber: #b45309;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); line-height: 1.7;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", sans-serif; }
+  a { color: inherit; }
+  .stripe { height: 8px; background: linear-gradient(90deg, var(--blue) 0 33.3%, var(--plate) 33.3% 66.6%, var(--red) 66.6%); }
+  .wrap { width: min(1040px, calc(100% - 32px)); margin: 0 auto; }
+  header.top { padding: 28px 0 8px; }
+  .course { margin: 0; font-size: .85rem; font-weight: 700; color: var(--muted); }
+  h1 { margin: 4px 0 0; font-size: clamp(1.7rem, 4.2vw, 2.6rem); line-height: 1.25; }
+  h1 .tag { display: inline-block; margin-left: 10px; padding: .05em .55em; border-radius: 10px; background: var(--navy); color: var(--plate); font-size: .45em; vertical-align: .45em; }
+  .lead { margin: 14px 0 0; max-width: 46em; font-size: 1.02rem; color: #334155; }
+  .not-decide { display: inline-block; margin-top: 12px; padding: 6px 12px; border-left: 4px solid var(--plate); background: var(--surface); font-size: .9rem; font-weight: 700; }
 
-    <main class="home-shell">
-      <section class="home-hero">
-        <div class="hero-copy">
-          <h1>あなたの「気になる」から、未来の学びを見つけよう。</h1>
-          <p class="hero-lead">診断・キーワード・履修プランナーで、経済経営学部の学びの入口をわかりやすく案内します。</p>
-        </div>
+  .quick { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr)); gap: 12px; margin: 26px 0 8px; }
+  .qbtn { display: flex; flex-direction: column; gap: 2px; padding: 16px 18px; border-radius: 14px; text-decoration: none; border: 2px solid transparent; }
+  .qbtn strong { font-size: 1.15rem; }
+  .qbtn span { font-size: .85rem; opacity: .9; }
+  .qbtn.gem { background: var(--navy); color: #fff; }
+  .qbtn.map { background: var(--plate); color: var(--navy); }
+  .qbtn.plan { background: var(--surface); color: var(--navy); border-color: var(--rule); }
+  .qbtn:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(22,34,58,.15); }
+  .qbtn.is-off { opacity: .55; pointer-events: none; }
 
-        <div class="hero-visual" aria-hidden="true">
-          <div class="campus-card">
-            <div class="campus-sky"></div>
-            <div class="campus-building">
-              <span></span><span></span><span></span><span></span>
-              <span></span><span></span><span></span><span></span>
-              <span></span><span></span><span></span><span></span>
-            </div>
-            <div class="student-row">
-              <span></span><span></span><span></span>
-            </div>
-          </div>
-          <div class="visual-ribbon blue"></div>
-          <div class="visual-ribbon yellow"></div>
-        </div>
-      </section>
+  h2 { margin: 34px 0 12px; font-size: 1.3rem; }
+  .steps { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+  .step { display: grid; grid-template-columns: 64px 1fr; gap: 14px; padding: 16px 18px; background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; }
+  .step .no { display: grid; place-items: center; align-self: start; width: 64px; height: 64px; border-radius: 14px; background: var(--navy); color: var(--plate); font-weight: 800; line-height: 1.1; text-align: center; font-size: .75rem; }
+  .step .no b { display: block; font-size: 1.6rem; }
+  .step h3 { margin: 0; font-size: 1.12rem; }
+  .step .time { margin-left: 8px; font-size: .8rem; font-weight: 700; color: var(--muted); }
+  .step p { margin: 4px 0 0; color: #334155; font-size: .95rem; }
+  .step ul { margin: 6px 0 0; padding-left: 1.2em; color: #334155; font-size: .92rem; }
+  .step .go { display: inline-block; margin-top: 10px; padding: 6px 14px; border-radius: 999px; background: var(--paper); border: 1px solid var(--rule); font-weight: 700; font-size: .9rem; text-decoration: none; }
+  .step.opt { border-style: dashed; }
+  .out { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; font-size: .88rem; }
+  .out li { padding: 6px 10px; border-radius: 8px; background: #fff8e1; }
 
-      <section class="tool-cards" id="tools" aria-label="診断ツール一覧">
-        <a class="tool-card teal" href="./diagnosis/">
-          <span class="tool-badge">おすすめ</span>
-          <span class="tool-icon" aria-hidden="true">
-            <svg viewBox="0 0 48 48" focusable="false">
-              <circle cx="24" cy="27" r="14"></circle>
-              <path d="M24 17v10l7 5M18 7h12M24 7v6M37 15l3-3"></path>
-            </svg>
-          </span>
-          <strong>3分診断</strong>
-          <span>いくつかの質問に答えるだけで、あなたの興味や強みに合う学びの領域を診断します。</span>
-          <em>今すぐ試す</em>
-        </a>
+  .help { margin: 30px 0 0; padding: 16px 18px; background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; }
+  .help h2 { margin: 0 0 6px; font-size: 1.05rem; }
+  .help dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; font-size: .92rem; }
+  .help dt { font-weight: 700; }
+  .help dd { margin: 0; color: #334155; }
+  footer { margin: 34px 0 40px; color: var(--muted); font-size: .82rem; }
+  @media (max-width: 600px) {
+    .step { grid-template-columns: 1fr; }
+    .step .no { width: auto; height: auto; padding: 4px 10px; display: inline-block; justify-self: start; }
+    .step .no b { display: inline; font-size: 1.1rem; margin-left: 4px; }
+    .help dl { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="stripe" aria-hidden="true"></div>
+<div class="wrap">
+  <header class="top">
+    <p class="course">ヒューマニスティック・リーダーシップWS2</p>
+    <h1>自分の軸と、学びの地図<span class="tag">第6回</span></h1>
+    <p class="lead">Gemとの対話で、自分が大事にしていることを言葉にします。そこから見つけたキーワードで、経済経営学部の学び（モジュール）とのつながりを地図のように眺めてみます。</p>
+    <p class="not-decide">コースやモジュールを決めるためのワークではありません。自分が何をしたいのかを、見える形にするためのワークです。</p>
+  </header>
 
-        <a class="tool-card blue" href="./keyword/">
-          <span class="tool-icon" aria-hidden="true">
-            <svg viewBox="0 0 48 48" focusable="false">
-              <circle cx="21" cy="21" r="12"></circle>
-              <path d="M30 30l10 10M15 21h12M21 15v12"></path>
-            </svg>
-          </span>
-          <strong>キーワード診断</strong>
-          <span>気になるキーワードから、関連する学びや分野、将来のキーワードを発見します。</span>
-          <em>今すぐ試す</em>
-        </a>
+  <nav class="quick" aria-label="ページを開く">
+    <a class="qbtn gem" id="gemButton" href="#" target="_blank" rel="noopener">
+      <strong>深掘りGemを開く</strong><span id="gemNote">STEP 2　Gemと話す</span>
+    </a>
+    <a class="qbtn map" href="./map/">
+      <strong>学びの地図を開く</strong><span>STEP 3　価値観と分野を選ぶ</span>
+    </a>
+    <a class="qbtn plan" href="./planner/">
+      <strong>履修プランナーを開く</strong><span>STEP 4　科目と時間割を見る（任意）</span>
+    </a>
+  </nav>
 
-        <a class="tool-card amber" href="./planner/">
-          <span class="tool-icon" aria-hidden="true">
-            <svg viewBox="0 0 48 48" focusable="false">
-              <rect x="10" y="12" width="28" height="28" rx="4"></rect>
-              <path d="M16 8v8M32 8v8M10 20h28M17 27h3M23 27h3M29 27h3M17 33h3M23 33h3"></path>
-            </svg>
-          </span>
-          <strong>履修モジュールプランナー</strong>
-          <span>興味のある学びを組み合わせて、自分だけの履修プランをシミュレーションします。</span>
-          <em>今すぐ試す</em>
-        </a>
-      </section>
+  <h2>進め方</h2>
+  <ol class="steps">
+    <li class="step">
+      <div class="no">STEP<b>1</b></div>
+      <div>
+        <h3>話のタネを用意する<span class="time">事前</span></h3>
+        <p>事前課題の a〜e から、話したいことを1つ用意しておきます。</p>
+        <ul>
+          <li>a 最近、気持ちが大きく動いた出来事</li>
+          <li>b HLP1・HLP2で「うまく動けた」「自分らしい」と感じた場面</li>
+          <li>c 第3〜5回の講師の話で、考えが揺さぶられたこと</li>
+          <li>d グループワークでモヤっとした場面</li>
+          <li>e 理想の大学生・リーダー像と、今の自分に足りないと感じること</li>
+        </ul>
+      </div>
+    </li>
+    <li class="step">
+      <div class="no">STEP<b>2</b></div>
+      <div>
+        <h3>深掘りGemと話す<span class="time">15分</span></h3>
+        <p>Gemの質問に、1つずつ答えます。答えにくいときは「パス」、疲れたら「まとめて」と書けば大丈夫です。最後に、次の6つがまとめて出てきます。</p>
+        <ul class="out">
+          <li>① 大事にしていること（軸）</li>
+          <li>② 問い直したい「当たり前」</li>
+          <li>③ 強みと、その賞味期限</li>
+          <li>④ 調べたい問い</li>
+          <li>⑤ キーワード</li>
+          <li>⑥ 学びの地図のリンク</li>
+        </ul>
+      </div>
+    </li>
+    <li class="step">
+      <div class="no">STEP<b>3</b></div>
+      <div>
+        <h3>学びの地図を見る<span class="time">5分</span></h3>
+        <p>Gemのまとめの ⑥ のリンクを押すと、あなたのキーワードが選ばれた状態で開きます。ほかにも「大事」にしている価値観を足して、近いモジュールと授業の例を見てみましょう。完璧に当てはまらなくても大丈夫です。「この視点なら、ここに位置づく」という目安です。</p>
+        <a class="go" href="./map/">学びの地図を開く →</a>
+      </div>
+    </li>
+    <li class="step opt">
+      <div class="no">STEP<b>4</b></div>
+      <div>
+        <h3>履修プランナーで確かめる<span class="time">任意</span></h3>
+        <p>地図の「上位のモジュールを履修プランナーで見る」を押すと、そのモジュールの科目・学期・時間割が見られます。2年生からの学びを、少し具体的に想像してみましょう。</p>
+        <a class="go" href="./planner/">履修プランナーを開く →</a>
+      </div>
+    </li>
+    <li class="step">
+      <div class="no">STEP<b>5</b></div>
+      <div>
+        <h3>ワークシートに書く</h3>
+        <p>Gemのまとめと地図の結果（「結果を文章でコピー」）を見ながら、ワークシートに書きます。Gemの言葉を丸写しせず、自分の言葉に直して書きましょう。④の「調べたい問い」は、次の回のリサーチテーマの種になります。</p>
+      </div>
+    </li>
+  </ol>
 
-      <section class="home-steps" id="steps" aria-label="使い方">
-        <h2>かんたん3ステップで、未来の学びが見えてくる</h2>
-        <div class="step-grid">
-          <article>
-            <span>STEP 01</span>
-            <h3>気になるを選ぶ</h3>
-            <p>興味のあることや気になるテーマを直感で選んでみよう。</p>
-          </article>
-          <article>
-            <span>STEP 02</span>
-            <h3>タイプを知る</h3>
-            <p>あなたの興味や強みのタイプを診断し、学びの方向を整理します。</p>
-          </article>
-          <article>
-            <span>STEP 03</span>
-            <h3>履修を考える</h3>
-            <p>興味のある科目を組み合わせて、自分だけの履修プランをつくろう。</p>
-          </article>
-        </div>
-      </section>
+  <section class="help" aria-labelledby="help-title">
+    <h2 id="help-title">困ったときは</h2>
+    <dl>
+      <dt>Gemの様子がおかしい</dt><dd>新しいチャットを開いて、最初からやり直すのがいちばん早いです。</dd>
+      <dt>Gemの質問が重い</dt><dd>「パス」で飛ばせます。「まとめて」と書けば、そこでまとめてくれます。</dd>
+      <dt>地図のキーワードが選べない</dt><dd>価値観は「大事」5つ・「★いちばん大事」2つ、分野は2つまでです。どれかを押して解除してから選んでください。</dd>
+      <dt>リンクを開いても何も選ばれていない</dt><dd>学びの地図を開いて、Gemのまとめの ⑤ のキーワードを自分で押せば同じ結果になります。</dd>
+    </dl>
+  </section>
 
-      <aside class="home-message">
-        <span class="message-icon" aria-hidden="true"></span>
-        <p>このサイトは経済経営学部の学びを知るためのツールです。登録不要・無料で、すべてのツールを体験できます。</p>
-      </aside>
-    </main>
-  </body>
+  <footer>
+    このページは、ヒューマニスティック・リーダーシップWS2の授業用です。表示される結果は、履修や進路を決めるものではありません。実際の履修は、最新の履修要項・シラバスで確認してください。
+  </footer>
+</div>
+<script>
+  /* ═════ 設定：深掘りGemの共有リンクを '' の中に貼る ═════ */
+  var GEM_URL = '';
+  (function () {
+    var b = document.getElementById('gemButton');
+    if (GEM_URL) { b.href = GEM_URL; }
+    else { b.classList.add('is-off'); b.removeAttribute('href'); document.getElementById('gemNote').textContent = 'Gemのリンクは、授業で案内します'; }
+  })();
+</script>
+</body>
 </html>

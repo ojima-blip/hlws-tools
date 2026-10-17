@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function initKeyword() {
   const appData = await fetchJson(new URL('data/keyword.json', SITE_ROOT).href);
   const mode = new URLSearchParams(window.location.search).get('mode');
-  if (mode === 'hlws' && appData.hlws) {
+  if ((mode === 'hlws' || window.HLWS_ONLY) && appData.hlws) {
     initHlws(appData);
     return;
   }
@@ -262,7 +262,7 @@ function initHlws(appData) {
   document.body.classList.add('mode-hlws');
   document.title = H.title;
   const lead = document.querySelector('.topbar .lead');
-  if (lead) lead.textContent = H.lead;
+  if (lead && !window.HLWS_ONLY) lead.textContent = H.lead;   // 学びの地図のページは、ページ側の説明を使う
   const selectorTitle = document.getElementById('selector-title');
   if (selectorTitle) selectorTitle.textContent = '大事にしたい価値観と、気になる分野を選ぶ';
   const keywordGroups = document.getElementById('keywordGroups');
@@ -532,7 +532,7 @@ function initHlws(appData) {
   function buildResultUrl() {
     const url = new URL(window.location.href);
     url.search = ''; url.hash = '';
-    url.searchParams.set('mode', 'hlws');
+    if (!window.HLWS_ONLY) url.searchParams.set('mode', 'hlws');
     if (picked.top.size) url.searchParams.set('v1', Array.from(picked.top).join(','));
     if (picked.sub.size) url.searchParams.set('v2', Array.from(picked.sub).join(','));
     if (picked.field.size) url.searchParams.set('f', Array.from(picked.field).join(','));

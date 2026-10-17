@@ -4216,3 +4216,19 @@ body.tool-keyword.mode-hlws .linked-pill.pill-top { background: #b45309; color: 
 body.tool-keyword.mode-hlws .selected-pill.pill-sub,
 body.tool-keyword.mode-hlws .linked-pill.pill-sub { background: #fde7c4; color: #7c3a06; }
 body.tool-keyword.mode-hlws .persp-sub { color: #7c3a06; }
+
+/* ───── HLWS2 学びの地図（map/） ───── */
+.hlws-stripe { height: 6px; background: linear-gradient(90deg, #1e3a8a 0 33.3%, #f3c623 33.3% 66.6%, #c0392b 66.6%); }
+body.tool-keyword.mode-hlws .hlws-sub { margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: #16223a; color: #f3c623; font-size: 12px; font-weight: 800; vertical-align: 4px; }
+body.tool-keyword.mode-hlws .map-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 8px; margin: 14px 0 0; padding: 0; list-style: none; }
+body.tool-keyword.mode-hlws .map-steps li { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid #d8e3f2; border-radius: 10px; background: #ffffff; font-size: 13px; color: #475569; }
+body.tool-keyword.mode-hlws .map-steps b { flex: 0 0 auto; display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 999px; background: #16223a; color: #f3c623; font-size: 14px; }
+body.tool-keyword.mode-hlws .map-steps strong { display: block; color: #0f1b33; font-size: 14px; }
+body.tool-keyword.mode-hlws .map-gem-note { margin: 10px 0 0; font-size: 13px; color: #5f6f86; }
+body.tool-keyword.mode-hlws .jump-result { margin: 14px 0 0; text-align: right; font-weight: 700; }
+body.tool-keyword.mode-hlws .jump-result a { color: #0f3478; }
+body.tool-keyword.mode-hlws .result-panel .actions { padding: 0 20px 16px; }
+@media (min-width: 1000px) {
+  body.tool-keyword.mode-hlws .result-panel { position: sticky; top: 12px; align-self: start; max-height: calc(100vh - 24px); overflow: auto; }
+  body.tool-keyword.mode-hlws .jump-result { display: none; }
+}
