@@ -31,6 +31,7 @@
   .qbtn.gem { background: var(--navy); color: #fff; }
   .qbtn.map { background: var(--plate); color: var(--navy); }
   .qbtn.plan { background: var(--surface); color: var(--navy); border-color: var(--rule); }
+  .qbtn.dash { background: var(--surface); color: var(--navy); border-color: var(--navy); }
   .qbtn:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(22,34,58,.15); }
   .qbtn.is-off { opacity: .55; pointer-events: none; }
 
@@ -42,12 +43,22 @@
   .step h3 { margin: 0; font-size: 1.12rem; }
   .step .time { margin-left: 8px; font-size: .8rem; font-weight: 700; color: var(--muted); }
   .step p { margin: 4px 0 0; color: #334155; font-size: .95rem; }
-  .step ul { margin: 6px 0 0; padding-left: 1.2em; color: #334155; font-size: .92rem; }
+  .step ul, .step ol { margin: 6px 0 0; padding-left: 1.2em; color: #334155; font-size: .92rem; }
   .step .go { display: inline-block; margin-top: 10px; padding: 6px 14px; border-radius: 999px; background: var(--paper); border: 1px solid var(--rule); font-weight: 700; font-size: .9rem; text-decoration: none; }
   .step.opt { border-style: dashed; }
   .out { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; font-size: .88rem; }
   .out li { padding: 6px 10px; border-radius: 8px; background: #fff8e1; }
 
+  .tip { margin: 8px 0 0; font-size: .88rem; color: var(--muted); }
+  .sample { margin-top: 10px; border: 1px solid var(--rule); border-radius: 10px; background: var(--paper); padding: 8px 12px; }
+  .sample summary { cursor: pointer; font-weight: 700; font-size: .95rem; }
+  .sample-note { margin: 6px 0 8px; font-size: .82rem; color: var(--muted); }
+  .talk { display: grid; grid-template-columns: max-content 1fr; gap: 6px 10px; margin: 0; font-size: .88rem; }
+  .talk dt { font-weight: 800; padding-top: 2px; }
+  .talk dt.me { color: var(--blue); }
+  .talk dt.gem { color: var(--amber); }
+  .talk dd { margin: 0; padding: 6px 10px; border-radius: 8px; background: var(--surface); border: 1px solid var(--rule); }
+  .talk dt.note { grid-column: 1 / -1; font-weight: 400; color: var(--muted); font-size: .85rem; }
   .help { margin: 30px 0 0; padding: 16px 18px; background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; }
   .help h2 { margin: 0 0 6px; font-size: 1.05rem; }
   .help dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; font-size: .92rem; }
@@ -69,19 +80,22 @@
   <header class="top">
     <p class="course">ヒューマニスティック・リーダーシップWS2</p>
     <h1>自分の軸と、学びの地図<span class="tag">第6回</span></h1>
-    <p class="lead">Gemとの対話で、自分が大事にしていることを言葉にします。そこから見つけたキーワードで、経済経営学部の学び（モジュール）とのつながりを地図のように眺めてみます。</p>
+    <p class="lead">価値観コンパスの結果と、あなた自身の経験（自分展・今回の対談・最近の出来事）を、Gemとの対話でつなげます。「自分の軸」と「問い」を言葉にし、そこから見つけたキーワードで、経済経営学部の学び（モジュール）とのつながりを地図のように眺めてみます。</p>
     <p class="not-decide">コースやモジュールを決めるためのワークではありません。自分が何をしたいのかを、見える形にするためのワークです。</p>
   </header>
 
   <nav class="quick" aria-label="ページを開く">
+    <a class="qbtn dash" id="dashButton" href="#" target="_blank" rel="noopener">
+      <strong>課題ダッシュボードを開く</strong><span id="dashNote">STEP 1　価値観コンパスに答える</span>
+    </a>
     <a class="qbtn gem" id="gemButton" href="#" target="_blank" rel="noopener">
-      <strong>深掘りGemを開く</strong><span id="gemNote">STEP 2　Gemと話す</span>
+      <strong>深掘りGemを開く</strong><span id="gemNote">STEP 3　Gemでまとめる</span>
     </a>
     <a class="qbtn map" href="./map/">
-      <strong>学びの地図を開く</strong><span>STEP 3　価値観と分野を選ぶ</span>
+      <strong>学びの地図を開く</strong><span>STEP 5　価値観と分野を選ぶ</span>
     </a>
     <a class="qbtn plan" href="./planner/">
-      <strong>履修プランナーを開く</strong><span>STEP 4　科目と時間割を見る（任意）</span>
+      <strong>履修プランナーを開く</strong><span>STEP 6　科目と時間割を見る（任意）</span>
     </a>
   </nav>
 
@@ -90,42 +104,80 @@
     <li class="step">
       <div class="no">STEP<b>1</b></div>
       <div>
-        <h3>話のタネを用意する<span class="time">事前</span></h3>
-        <p>事前課題の a〜e から、話したいことを1つ用意しておきます。</p>
+        <h3>価値観コンパスに答える<span class="time">事前・約10分</span></h3>
+        <p>課題ダッシュボードの「価値観コンパス」から、57の短い質問に答えます。数分たってから「最新にする」を押すと、あなたが大事にしている価値が円（コンパス）で表示されます。</p>
         <ul>
-          <li>a 最近、気持ちが大きく動いた出来事</li>
-          <li>b HLP1・HLP2で「うまく動けた」「自分らしい」と感じた場面</li>
-          <li>c 第3〜5回の講師の話で、考えが揺さぶられたこと</li>
-          <li>d グループワークでモヤっとした場面</li>
-          <li>e 理想の大学生・リーダー像と、今の自分に足りないと感じること</li>
+          <li>結果の下にある「Gemに貼る文」を、STEP 3 で使います（「コピーする」で写せます）。</li>
+          <li>点数は他の人との比較ではなく、あなたの中での優先順位です。正解・不正解はなく、成績にも関係しません。</li>
+          <li>質問と得点の計算は、Schwartz の価値観尺度（PVQ-RR 日本語版）にもとづきます。タイプ名（開拓者・探究者 など）はこの授業独自の呼び名で、論文の内容ではありません。</li>
         </ul>
       </div>
     </li>
     <li class="step">
       <div class="no">STEP<b>2</b></div>
       <div>
-        <h3>深掘りGemと話す<span class="time">15分</span></h3>
-        <p>Gemの質問に、1つずつ答えます。答えにくいときは「パス」、疲れたら「まとめて」と書けば大丈夫です。最後に、次の6つがまとめて出てきます。</p>
-        <ul class="out">
-          <li>① 大事にしていること（軸）</li>
-          <li>② 問い直したい「当たり前」</li>
-          <li>③ 強みと、その賞味期限</li>
-          <li>④ 調べたい問い</li>
-          <li>⑤ キーワード</li>
-          <li>⑥ 学びの地図のリンク</li>
+        <h3>書き出すことを思い出しておく<span class="time">事前</span></h3>
+        <p>授業では、次の3つを3分で1〜2行ずつ書きます。少し思い出しておくと書きやすくなります。思い出せない所があっても大丈夫です。</p>
+        <ul>
+          <li>自分展：何を展示したか、なぜそれを選んだか</li>
+          <li>今回の対談：心が動いた言葉や場面（なければ、なしでOK）</li>
+          <li>最近、気持ちが動いた経験：うれしかったこと、悔しかったこと・モヤっとしたこと</li>
         </ul>
       </div>
     </li>
     <li class="step">
       <div class="no">STEP<b>3</b></div>
       <div>
+        <h3>深掘りGemでまとめる<span class="time">約5分</span></h3>
+        <p>Gemが出す枠に、①コンパスの「Gemに貼る文」と、②〜④のメモ（各1〜2行）を入れて送ります。Gemは、コンパスの結果を経験で確かめる形で、すぐに次の7つをまとめます。</p>
+        <ul class="out">
+          <li>① 私の軸</li>
+          <li>② 軸が表れた経験</li>
+          <li>③ コンパスとのつながり（ずれ）</li>
+          <li>④ 私の問い・大学で学べる問いの例</li>
+          <li>⑤ キーワード</li>
+          <li>⑥ 学びの地図のリンク</li>
+          <li>⑦ チームで共有するときの話し方（30秒）</li>
+        </ul>
+        <p class="tip">まとめは「たたき台」です。言葉を1つだけ直したい所があれば、Gemに番号で伝えられます。くわしい確かめは、次の STEP 4 の対話で行います。</p>
+        <details class="sample">
+          <summary>まとめの例を見る（参考）</summary>
+          <p class="sample-note">架空の学生の例です。書き方や長さの参考にしてください。中身をまねする必要はありません。</p>
+          <dl class="talk">
+            <dt class="me">あなた</dt><dd>① 【価値観コンパスの結果（PVQ-RR）】タイプ：探究者（やや）／相対的に高い価値：自分で決める、すべての人と自然への配慮、新しさと挑戦／相対的に低い価値：影響力、伝統 …<br>② ・地元の川の写真を展示した。子どものころ遊んだ川が、工事で変わったのが気になっていたから<br>③ ・「現場の声を聞かずに決めると、続かない」という言葉にうなずいた<br>④ ・自分で企画したイベントがうまくいって、うれしかった</dd>
+            <dt class="gem">Gem</dt><dd>① 私の軸：身近な自然や暮らしのことを、そこに住む人が自分たちで決められることを大事にしている。<br>② 軸が表れた経験：「地元の川の写真を展示した」（②）／「自分で企画したイベントがうまくいった」（④）<br>③ コンパスとのつながり：すべての人と自然への配慮 ←「地元の川」（②）、自分で決める ←「自分で企画した」（④）／ずれ：伝統は低めの結果だが、「子どものころ遊んだ川」（②）には、受け継がれてきた風景を大切にする面が見えるかもしれない<br>④ 私の問い：地域の開発は、どうすれば住む人の声を生かして決められるか？<br>　大学で学べる問いの例：・公共工事の計画に、住民の声を集める方法には、どんなものがある？（分野：政策づくり）・地域の自然を生かして、人が集まる場所をつくるには、どうしたらいい？（分野：地方創生）<br>⑤ キーワード：いちばん大事＝自然と共に生きる、自分らしさ／大事＝受け継がれたものを大切に、相手の立場に立つ／分野＝地方創生、環境問題<br>⑥ 学びの地図を見る：（リンク）<br>⑦ チームで共有するときの話し方（30秒）：私が大事にしているのは、身近な自然や暮らしのことを、そこに住む人が自分たちで決められることです。そう思ったのは、子どものころ遊んだ川が、工事で変わったのを見たときです。いま気になっているのは、地域の開発に、住む人の声をどう生かせるかです。</dd>
+          </dl>
+        </details>
+      </div>
+    </li>
+    <li class="step">
+      <div class="no">STEP<b>4</b></div>
+      <div>
+        <h3>チームで共有して確かめる<span class="time">授業で</span></h3>
+        <p>チームで、⑦ の話し方を使って、一人ずつ共有します。聞く人は、次の順で返します。SA・先生も対話に入ります。</p>
+        <ol>
+          <li>経験を受け止める（「その経験、いいね」「話してくれてありがとう」）</li>
+          <li>共感したところを伝える（「〜のところ、わかる」）</li>
+          <li>前向きな「なぜ？」を聞く（「〜のとき、どうしてそうしたの？」）</li>
+        </ol>
+        <ul>
+          <li>見せる部分は、自分で選んでかまいません（コンパスのタイプや点数を見せる必要はありません）。</li>
+          <li>相手の価値観を良い・悪いで判断しない。タイプで人を決めつけない。</li>
+          <li>話しながら出てきた自分の言葉で、①軸と ④問いを書き直します。</li>
+        </ul>
+      </div>
+    </li>
+    <li class="step">
+      <div class="no">STEP<b>5</b></div>
+      <div>
         <h3>学びの地図を見る<span class="time">5分</span></h3>
-        <p>Gemのまとめの ⑥ のリンクを押すと、あなたのキーワードが選ばれた状態で開きます。ほかにも「大事」にしている価値観を足して、近いモジュールと授業の例を見てみましょう。完璧に当てはまらなくても大丈夫です。「この視点なら、ここに位置づく」という目安です。</p>
+        <p>Gemのまとめの ⑥ のリンクを押すと、あなたのキーワードが選ばれた状態で開きます。近いモジュールと授業の例を見てみましょう。完璧に当てはまらなくても大丈夫です。「この視点なら、ここに位置づく」という目安です。</p>
+        <p>地図の結果（上位のモジュール名と「つながったキーワード」）をGemに貼ると、あなたの軸とモジュールのつながりを言葉にしてくれます。</p>
         <a class="go" href="./map/">学びの地図を開く →</a>
       </div>
     </li>
     <li class="step opt">
-      <div class="no">STEP<b>4</b></div>
+      <div class="no">STEP<b>6</b></div>
       <div>
         <h3>履修プランナーで確かめる<span class="time">任意</span></h3>
         <p>地図の「上位のモジュールを履修プランナーで見る」を押すと、そのモジュールの科目・学期・時間割が見られます。2年生からの学びを、少し具体的に想像してみましょう。</p>
@@ -133,10 +185,10 @@
       </div>
     </li>
     <li class="step">
-      <div class="no">STEP<b>5</b></div>
+      <div class="no">STEP<b>7</b></div>
       <div>
         <h3>ワークシートに書く</h3>
-        <p>Gemのまとめと地図の結果（「結果を文章でコピー」）を見ながら、ワークシートに書きます。Gemの言葉を丸写しせず、自分の言葉に直して書きましょう。④の「調べたい問い」は、次の回のリサーチテーマの種になります。</p>
+        <p>Gemのまとめ、対話で気づいたこと、地図の結果（「結果を文章でコピー」）を見ながら、ワークシートに書きます。Gemの言葉を丸写しせず、自分の言葉に直して書きましょう。④の「問い」は、次の回のリサーチテーマの種になります。</p>
       </div>
     </li>
   </ol>
@@ -145,9 +197,11 @@
     <h2 id="help-title">困ったときは</h2>
     <dl>
       <dt>Gemの様子がおかしい</dt><dd>新しいチャットを開いて、最初からやり直すのがいちばん早いです。</dd>
-      <dt>Gemの質問が重い</dt><dd>「パス」で飛ばせます。「まとめて」と書けば、そこでまとめてくれます。</dd>
+      <dt>Gemのまとめがしっくりこない</dt><dd>まとめは「たたき台」です。STEP 4 の対話で確かめて、自分の言葉に直してください。「やり直し」と書けば、別の切り口で1回作り直してくれます。</dd>
       <dt>地図のキーワードが選べない</dt><dd>価値観は「大事」5つ・「★いちばん大事」2つ、分野は2つまでです。どれかを押して解除してから選んでください。</dd>
       <dt>リンクを開いても何も選ばれていない</dt><dd>学びの地図を開いて、Gemのまとめの ⑤ のキーワードを自分で押せば同じ結果になります。</dd>
+      <dt>価値観コンパスの結果が出ない</dt><dd>回答してから数分かかります。課題ダッシュボードで「最新にする」を押してください。それでも出ないときは、担当の教員・SAに声をかけてください。</dd>
+      <dt>コンパスの結果やタイプが、自分と合わない気がする</dt><dd>結果は目安で、あなたを決めつけるものではありません。合わないと感じた所こそ、Gemとの対話で確かめる大事な手がかりです。</dd>
     </dl>
   </section>
 
@@ -167,12 +221,16 @@
   </footer>
 </div>
 <script>
-  /* ═════ 設定：深掘りGemの共有リンクを '' の中に貼る ═════ */
+  /* ═════ 設定：深掘りGemの共有リンクと、課題ダッシュボード（学生用）のリンクを '' の中に貼る ═════ */
   var GEM_URL = '';
+  var DASHBOARD_URL = '';
   (function () {
     var b = document.getElementById('gemButton');
     if (GEM_URL) { b.href = GEM_URL; }
     else { b.classList.add('is-off'); b.removeAttribute('href'); document.getElementById('gemNote').textContent = 'Gemのリンクは、授業で案内します'; }
+    var d = document.getElementById('dashButton');
+    if (DASHBOARD_URL) { d.href = DASHBOARD_URL; }
+    else { d.classList.add('is-off'); d.removeAttribute('href'); document.getElementById('dashNote').textContent = 'STEP 1　ダッシュボードのリンクは授業で案内します'; }
   })();
 </script>
 </body>
