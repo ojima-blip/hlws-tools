@@ -75,6 +75,9 @@
   .peek { flex: 2; background: var(--plate); color: var(--navy); -webkit-user-select: none; user-select: none; touch-action: none; }
   .peek.held { background: #e0b200; }
   .controls .ghost { flex: 1; }
+  .peekNote { margin: 0; padding: 10px 14px; background: #fff4cc; color: var(--navy); font-size: .95rem; font-weight: 800; text-align: center; line-height: 1.5; border-top: 1px solid var(--rule); }
+  .peekNote.quiet { background: var(--paper); color: var(--muted); font-weight: 600; font-size: .85rem; padding: 6px 14px; }
+  .timer.wait { color: rgba(255,255,255,.55); }
 
   /* 時間切れ・正解 */
   .banner { padding: 12px 14px; background: var(--navy); color: #fff; text-align: center; border-top: 1px solid var(--rule); }
@@ -129,12 +132,13 @@
   <p class="who">ここからは、指示する人がスマホを操作します。</p>
   <div class="card" style="margin-top:10px">
     <ol class="rules">
-      <li>描く人が目をつむったのを確かめて、「スタート」を押す。</li>
+      <li>描く人が目をつむったのを確かめて、「お題の確認へ」を押す。</li>
       <li>「お題を見る」を<b>押している間だけ</b>お題が出ます。描く人に見せないように。</li>
+      <li><b>手を離すと、お題が消えて、90秒のカウントダウンが始まります。</b></li>
       <li>お題の名前は言わず、形と位置だけで伝える。</li>
     </ol>
   </div>
-  <button class="btn yellow" id="start" type="button">スタート（90秒）</button>
+  <button class="btn yellow" id="start" type="button">お題の確認へ</button>
   <button class="btn ghost" id="backLevels" type="button">難しさを選び直す</button>
 </section>
 
@@ -153,6 +157,7 @@
     <div class="topicPeek" id="peekBox" aria-live="polite"></div>
   </div>
   <div class="banner hidden" id="banner" aria-live="polite"></div>
+  <p class="peekNote" id="peekNote" aria-live="polite"></p>
   <div class="controls" id="drawControls">
     <button class="btn peek" id="peekBtn" type="button">お題を見る（押している間だけ）</button>
   </div>
@@ -310,9 +315,12 @@
 
   /* ───── お題を見る（押している間だけ）───── */
   var peekBtn = $('peekBtn'), peekBox = $('peekBox');
+  var peeking = false;
   function peekOn(e) {
-    if (state.phase !== 'drawing') return;
+    if (state.phase !== 'drawing' && state.phase !== 'preview') return;
     if (e) e.preventDefault();
+    unlockAudio();
+    peeking = true;
     peekBox.innerHTML = '';
     var sm = document.createElement('small'); sm.textContent = 'お題（描く人に見せない・言わない）';
     peekBox.appendChild(sm);
@@ -322,6 +330,9 @@
   function peekOff() {
     peekBox.classList.remove('on'); peekBtn.classList.remove('held');
     peekBox.textContent = '';                       // 離したら、お題の文字を画面から消す
+    if (!peeking) return;
+    peeking = false;
+    if (state.phase === 'preview') startCountdown();   // 最初にお題を見て、手を離したらカウントダウン開始
   }
   peekBtn.addEventListener('pointerdown', peekOn);
   ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (t) { peekBtn.addEventListener(t, peekOff); });
@@ -347,7 +358,7 @@
   $('backLevels').addEventListener('click', function () { if (state.screen === 'ready') show('levels'); });
 
   $('start').addEventListener('click', function () {
-    if (state.screen !== 'ready' || state.phase === 'drawing') return;
+    if (state.screen !== 'ready' || state.phase === 'drawing' || state.phase === 'preview') return;
     $('start').disabled = true;
     unlockAudio();
     secret = pickTopic(state.level);
@@ -361,16 +372,46 @@
     $('clearBtn').classList.remove('hidden'); $('finishBtn').classList.remove('hidden');
     $('clearBtn').textContent = '全部消す'; clearArmed = false;
     $('answerBtn').disabled = false;
-    drawingEnabled = true;
-    state.phase = 'drawing';
-    state.endAt = Date.now() + SECONDS * 1000;
+    // まだ描けない・時間は止まったまま。指示する人がお題を見て、手を離したら始まる
+    drawingEnabled = false;
+    state.phase = 'preview';
+    $('clearBtn').classList.add('hidden'); $('finishBtn').classList.add('hidden');
+    $('timer').textContent = fmt(SECONDS); $('timer').classList.remove('last'); $('timer').classList.add('wait');
+    $('hint').textContent = 'お題を確認すると、ここに描けるようになります';
+    setNote('preview');
     show('draw');
     setRef();
+    keepAwake(true);
+  });
+
+  function setNote(kind) {
+    var n = $('peekNote');
+    if (kind === 'preview') {
+      n.textContent = '「お題を見る」を押してお題を確認してください。手を離すと、お題が消えて、カウントダウンが始まります。';
+      n.classList.remove('quiet'); n.classList.remove('hidden');
+    } else if (kind === 'drawing') {
+      n.textContent = 'お題をもう一度見たいときは、押している間だけ表示されます。';
+      n.classList.add('quiet'); n.classList.remove('hidden');
+    } else {
+      n.classList.add('hidden'); n.textContent = '';
+    }
+  }
+
+  function startCountdown() {
+    if (state.phase !== 'preview') return;
+    state.phase = 'drawing';
+    drawingEnabled = true;
+    $('clearBtn').classList.remove('hidden'); $('finishBtn').classList.remove('hidden');
+    $('timer').classList.remove('wait');
+    $('hint').textContent = 'ここに指で描きます';
+    setNote('drawing');
+    state.endAt = Date.now() + SECONDS * 1000;
     tick();
     clearInterval(state.timerId);
     state.timerId = setInterval(tick, 250);
-    keepAwake(true);
-  });
+    setRef();
+    resizeCanvas();
+  }
 
   // 全部消す：誤って押しても消えないよう、2回押しで消す
   var clearArmed = false, clearTimer = 0;
@@ -409,6 +450,7 @@
     $('timer').textContent = '0:00'; $('timer').classList.add('last');
     $('clearBtn').classList.add('hidden'); $('finishBtn').classList.add('hidden');
     $('drawControls').classList.add('hidden');
+    setNote('none');
     $('afterControls').classList.remove('hidden');
     var b = $('banner'); b.innerHTML = '';
     var big = document.createElement('div'); big.className = 'big'; big.textContent = '目を開けてOK！ これは何？';
