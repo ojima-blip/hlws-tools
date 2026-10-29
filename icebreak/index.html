@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16223a">
+<title>目かくしお絵かき｜HLWS2 アイスブレイク</title>
+<style>
+  :root {
+    --navy: #16223a; --navy2: #22335a; --plate: #f3c623; --paper: #f2f4f8; --surface: #ffffff;
+    --ink: #16223a; --muted: #5b6577; --rule: #d8dde6; --red: #c0282d; --orange: #c2410c;
+    --easy: #1d6b48; --normal: #1f3f8f; --hard: #a33a12;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--paper); color: var(--ink);
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", "Meiryo", sans-serif;
+    -webkit-text-size-adjust: 100%; overscroll-behavior: none;
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+  }
+  body.drawing { overflow: hidden; position: fixed; inset: 0; }
+  .stripe { height: 6px; background: linear-gradient(90deg, #1f3f8f 0 33.3%, var(--plate) 33.3% 66.6%, var(--red) 66.6%); }
+  .screen { display: none; min-height: calc(100% - 6px); padding: 18px 16px 28px; max-width: 560px; margin: 0 auto; }
+  .screen.on { display: block; }
+  .kicker { margin: 0; font-size: .8rem; font-weight: 700; color: var(--orange); }
+  h1 { margin: 2px 0 0; font-size: 1.7rem; line-height: 1.3; }
+  h2 { margin: 0; font-size: 1.35rem; line-height: 1.4; }
+  p { line-height: 1.65; }
+  .card { margin-top: 14px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; }
+  .rules { margin: 0; padding-left: 1.3em; line-height: 1.7; }
+  .rules li + li { margin-top: 4px; }
+  .rules b { color: var(--navy); }
+  .note { margin-top: 12px; padding: 10px 14px; border-radius: 10px; background: #fff4cc; font-size: .92rem; font-weight: 700; }
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+    min-height: 56px; margin-top: 14px; padding: 12px 16px; border: 0; border-radius: 14px;
+    background: var(--navy); color: #fff; font: inherit; font-size: 1.1rem; font-weight: 800;
+    cursor: pointer; touch-action: manipulation;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn:disabled { opacity: .5; }
+  .btn.yellow { background: var(--plate); color: var(--navy); }
+  .btn.ghost { background: transparent; color: var(--navy); border: 2px solid var(--rule); min-height: 46px; font-size: .95rem; }
+  .levels { display: grid; gap: 12px; margin-top: 16px; }
+  .level { text-align: left; justify-content: space-between; min-height: 76px; }
+  .level small { display: block; font-size: .8rem; font-weight: 500; opacity: .85; }
+  .level .tag { padding: 2px 10px; border-radius: 999px; background: rgba(255,255,255,.18); font-size: .85rem; }
+  .level.easy { background: var(--easy); } .level.normal { background: var(--normal); } .level.hard { background: var(--hard); }
+  .eyes { margin-top: 18px; padding: 22px 16px; border-radius: 16px; background: var(--navy); color: #fff; text-align: center; }
+  .eyes .big { font-size: 1.5rem; font-weight: 900; line-height: 1.5; }
+  .eyes .chip { display: inline-block; margin-top: 10px; padding: 4px 12px; border-radius: 999px; background: var(--plate); color: var(--navy); font-weight: 800; }
+  .who { margin: 16px 0 0; font-size: .95rem; font-weight: 700; color: var(--muted); }
+
+  /* 描く画面 */
+  #draw { padding: 0; max-width: none; height: calc(100% - 6px); }
+  #draw.on { display: flex; flex-direction: column; }
+  .bar { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: var(--navy); color: #fff; }
+  .timer { font-size: 1.8rem; font-weight: 900; font-variant-numeric: tabular-nums; min-width: 4.2ch; }
+  .timer.last { color: #ff8a80; }
+  .bar .lv { padding: 2px 10px; border-radius: 999px; background: rgba(255,255,255,.16); font-size: .85rem; font-weight: 700; white-space: nowrap; }
+  .bar .sp { flex: 1; }
+  .bar .mini { min-height: 40px; margin: 0; width: auto; padding: 6px 12px; font-size: .85rem; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.35); }
+  .stage { position: relative; flex: 1; min-height: 0; background: #fff; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; display: block; }
+  .hint { position: absolute; left: 0; right: 0; top: 10px; text-align: center; font-size: .85rem; color: #9aa3b2; pointer-events: none; }
+  .topicPeek {
+    position: absolute; left: 12px; right: 12px; top: 12px; padding: 14px; border-radius: 14px;
+    background: var(--navy); color: #fff; text-align: center; font-size: 1.9rem; font-weight: 900; display: none; pointer-events: none;
+  }
+  .topicPeek.on { display: block; }
+  .topicPeek small { display: block; font-size: .8rem; font-weight: 600; color: var(--plate); }
+  .controls { display: flex; gap: 10px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); background: var(--paper); border-top: 1px solid var(--rule); }
+  .controls .btn { margin: 0; min-height: 60px; }
+  .peek { flex: 2; background: var(--plate); color: var(--navy); -webkit-user-select: none; user-select: none; touch-action: none; }
+  .peek.held { background: #e0b200; }
+  .controls .ghost { flex: 1; }
+
+  /* 時間切れ・正解 */
+  .banner { padding: 12px 14px; background: var(--navy); color: #fff; text-align: center; border-top: 1px solid var(--rule); }
+  .banner .big { font-size: 1.45rem; font-weight: 900; }
+  .banner .answer { margin-top: 2px; font-size: 2.1rem; font-weight: 900; color: var(--plate); line-height: 1.3; }
+  .banner .sub { font-size: .85rem; opacity: .9; }
+  .hidden { display: none !important; }
+  footer { margin-top: 22px; font-size: .78rem; color: var(--muted); }
+  @media (min-width: 700px) { .levels { grid-template-columns: repeat(3, 1fr); } .level { min-height: 120px; flex-direction: column; align-items: flex-start; } }
+</style>
+</head>
+<body>
+<div class="stripe" aria-hidden="true"></div>
+
+<!-- 0. はじめに -->
+<section class="screen on" id="intro" aria-labelledby="t-intro">
+  <p class="kicker">HLWS2 チームアイスブレイク</p>
+  <h1 id="t-intro">目かくしお絵かき</h1>
+  <div class="card">
+    <ol class="rules">
+      <li><b>描く人は1人。</b>目をつむって、スマホに指で描きます。</li>
+      <li><b>指示する人</b>（ほかのメンバー）は、画面を見ながら声で伝えます。</li>
+      <li>お題の名前は<b>言ってはいけません。</b>形と位置だけで伝えます（例：「左上に小さい丸」）。</li>
+      <li>時間切れになったら、描いた人が目を開けて、<b>自分の絵を見て何のお題か当てます。</b></li>
+      <li>役を交代して、くり返します。</li>
+    </ol>
+  </div>
+  <p class="note">スマホを使い、指で描いてください（パソコンのトラックパッドでは描きにくいです）。チームで1台あれば遊べます。</p>
+  <button class="btn" id="goLevels" type="button">はじめる</button>
+  <footer>お題は、描く人には見えないようになっています。音が出ます（時間切れの合図）。</footer>
+</section>
+
+<!-- 1. 難易度 -->
+<section class="screen" id="levels" aria-labelledby="t-levels">
+  <p class="kicker" id="roundLabel">1回目</p>
+  <h2 id="t-levels">描く人が、難しさを選んでください</h2>
+  <div class="levels">
+    <button class="btn level easy" type="button" data-level="easy"><span>かんたん<small>形が分かりやすいもの</small></span><span class="tag">★</span></button>
+    <button class="btn level normal" type="button" data-level="normal"><span>ふつう<small>少し工夫がいるもの</small></span><span class="tag">★★</span></button>
+    <button class="btn level hard" type="button" data-level="hard"><span>むずかしい<small>形が複雑なもの</small></span><span class="tag">★★★</span></button>
+  </div>
+</section>
+
+<!-- 2. 目をつむって待つ -->
+<section class="screen" id="ready" aria-labelledby="t-ready">
+  <p class="kicker" id="readyLevel"></p>
+  <h2 id="t-ready" class="hidden">準備</h2>
+  <div class="eyes">
+    <div class="big">描く人は、<br>目をつむって、<br>スマホを持ったまま<br>待ってください</div>
+    <div class="chip">90秒で描きます</div>
+  </div>
+  <p class="who">ここからは、指示する人がスマホを操作します。</p>
+  <div class="card" style="margin-top:10px">
+    <ol class="rules">
+      <li>描く人が目をつむったのを確かめて、「スタート」を押す。</li>
+      <li>「お題を見る」を<b>押している間だけ</b>お題が出ます。描く人に見せないように。</li>
+      <li>お題の名前は言わず、形と位置だけで伝える。</li>
+    </ol>
+  </div>
+  <button class="btn yellow" id="start" type="button">スタート（90秒）</button>
+  <button class="btn ghost" id="backLevels" type="button">難しさを選び直す</button>
+</section>
+
+<!-- 3. 描く -->
+<section class="screen" id="draw" aria-label="描く画面">
+  <div class="bar">
+    <span class="timer" id="timer" aria-live="off">1:30</span>
+    <span class="lv" id="drawLevel"></span>
+    <span class="sp"></span>
+    <button class="btn mini" id="clearBtn" type="button">全部消す</button>
+    <button class="btn mini" id="finishBtn" type="button">終わる</button>
+  </div>
+  <div class="stage" id="stage">
+    <canvas id="cv" aria-label="指で描くところ"></canvas>
+    <div class="hint" id="hint">ここに指で描きます</div>
+    <div class="topicPeek" id="peekBox" aria-live="polite"></div>
+  </div>
+  <div class="banner hidden" id="banner" aria-live="polite"></div>
+  <div class="controls" id="drawControls">
+    <button class="btn peek" id="peekBtn" type="button">お題を見る（押している間だけ）</button>
+  </div>
+  <div class="controls hidden" id="afterControls">
+    <button class="btn yellow" id="answerBtn" type="button">正解を見る</button>
+  </div>
+  <div class="controls hidden" id="nextControls">
+    <button class="btn" id="nextBtn" type="button">役を交代して、次へ</button>
+  </div>
+</section>
+
+<script>
+(function () {
+  'use strict';
+  var TOPICS = {
+    easy:   { label: 'かんたん',   list: ['傘', '家', '魚', '雪だるま', '太陽', 'りんご', '星', '木', 'メガネ', '時計'] },
+    normal: { label: 'ふつう',     list: ['自転車', 'ペンギン', 'ギター', 'コーヒーカップ', 'うさぎ', 'ロケット', 'カタツムリ', '電球', '飛行機', 'ソフトクリーム'] },
+    hard:   { label: 'むずかしい', list: ['キリン', 'カブトムシ', 'ピアノ', '東京タワー', 'ゾウ', 'ヘリコプター', '扇風機', 'ラーメン', '自動販売機', 'タコ'] }
+  };
+  // 描く時間（秒）。確認用に ?t=10 のように変えられる（5〜300秒）
+  var SECONDS = (function () {
+    var m = /[?&]t=(\d+)/.exec(location.search);
+    var v = m ? Number(m[1]) : 90;
+    return v >= 5 && v <= 300 ? v : 90;
+  })();
+
+  var $ = function (id) { return document.getElementById(id); };
+  var state = { screen: 'intro', level: null, topic: null, round: 1, used: { easy: [], normal: [], hard: [] }, endAt: 0, timerId: 0, phase: 'idle' };
+  var secret = '';            // お題は画面に出さずに持っておく（押している間だけ表示）
+
+  /* ───── 画面の切り替え ───── */
+  function show(id) {
+    ['intro', 'levels', 'ready', 'draw'].forEach(function (s) { $(s).classList.toggle('on', s === id); });
+    document.body.classList.toggle('drawing', id === 'draw');
+    state.screen = id;
+    window.scrollTo(0, 0);
+    if (id === 'draw') resizeCanvas();
+  }
+
+  /* ───── お題 ───── */
+  function pickTopic(level) {
+    var pool = TOPICS[level].list.filter(function (t) { return state.used[level].indexOf(t) === -1; });
+    if (!pool.length) { state.used[level] = []; pool = TOPICS[level].list.slice(); }   // 全部出たら最初から
+    var t = pool[Math.floor(Math.random() * pool.length)];
+    state.used[level].push(t);
+    return t;
+  }
+
+  /* ───── 音（時間切れの合図）───── */
+  var audio = null;
+  function unlockAudio() {
+    try {
+      if (!audio) { var AC = window.AudioContext || window.webkitAudioContext; if (AC) audio = new AC(); }
+      if (audio && audio.state === 'suspended') audio.resume();
+    } catch (e) { audio = null; }
+  }
+  function chime() {
+    try {
+      if (!audio) return;
+      var now = audio.currentTime;
+      [0, 0.22, 0.44].forEach(function (d, i) {
+        var o = audio.createOscillator(), g = audio.createGain();
+        o.type = 'sine'; o.frequency.value = [880, 988, 1319][i];
+        g.gain.setValueAtTime(0.0001, now + d);
+        g.gain.exponentialRampToValueAtTime(0.35, now + d + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + d + 0.35);
+        o.connect(g); g.connect(audio.destination);
+        o.start(now + d); o.stop(now + d + 0.4);
+      });
+    } catch (e) { /* 音が出なくても続ける */ }
+    try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (e) {}
+  }
+
+  /* ───── 画面が消えないようにする（対応している端末だけ）───── */
+  var wakeLock = null;
+  function keepAwake(on) {
+    try {
+      if (on && navigator.wakeLock && !wakeLock) {
+        navigator.wakeLock.request('screen').then(function (w) { wakeLock = w; }).catch(function () {});
+      } else if (!on && wakeLock) { wakeLock.release().catch(function () {}); wakeLock = null; }
+    } catch (e) {}
+  }
+
+  /* ───── キャンバス ───── */
+  var cv = $('cv'), ctx = cv.getContext('2d');
+  var strokes = [], cur = null, drawingEnabled = false;
+  function resizeCanvas() {
+    var r = $('stage').getBoundingClientRect();
+    var dpr = Math.min(window.devicePixelRatio || 1, 3);
+    cv.width = Math.max(1, Math.round(r.width * dpr));
+    cv.height = Math.max(1, Math.round(r.height * dpr));
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    redraw();
+  }
+  function redraw() {
+    var r = $('stage').getBoundingClientRect();
+    ctx.clearRect(0, 0, r.width, r.height);
+    strokes.forEach(drawStroke);
+  }
+  // 点は、描き始めたときの描画エリアの大きさ（ref）を基準にした座標で持つ。
+  // 表示エリアの大きさが変わったら、縦横の比率を保ったまま縮小・拡大して描き直す（絵がゆがまない）
+  var ref = { w: 1, h: 1 };
+  function setRef() { var r = $('stage').getBoundingClientRect(); ref = { w: r.width || 1, h: r.height || 1 }; }
+  function drawStroke(s) {
+    var r = $('stage').getBoundingClientRect();
+    var k = Math.min(r.width / ref.w, r.height / ref.h), ox = (r.width - ref.w * k) / 2;
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#16223a'; ctx.lineWidth = 6 * Math.max(.6, k);
+    ctx.beginPath();
+    s.forEach(function (p, i) {
+      var x = ox + p[0] * k, y = p[1] * k;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    if (s.length === 1) { ctx.lineTo(ox + s[0][0] * k + 0.1, s[0][1] * k + 0.1); }
+    ctx.stroke();
+  }
+  function pos(e) {
+    var r = cv.getBoundingClientRect();
+    var k = Math.min(r.width / ref.w, r.height / ref.h), ox = (r.width - ref.w * k) / 2;
+    return [(e.clientX - r.left - ox) / k, (e.clientY - r.top) / k];
+  }
+  cv.addEventListener('pointerdown', function (e) {
+    if (!drawingEnabled) return;
+    e.preventDefault();
+    try { cv.setPointerCapture(e.pointerId); } catch (err) {}
+    cur = { id: e.pointerId, pts: [pos(e)] };
+    strokes.push(cur.pts);
+    $('hint').classList.add('hidden');
+    redraw();
+  });
+  cv.addEventListener('pointermove', function (e) {
+    if (!cur || e.pointerId !== cur.id || !drawingEnabled) return;
+    e.preventDefault();
+    var evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+    evs.forEach(function (ev) { cur.pts.push(pos(ev)); });
+    redraw();
+  });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function (t) {
+    cv.addEventListener(t, function (e) { if (cur && e.pointerId === cur.id) cur = null; });
+  });
+  // iOS Safari で画面がスクロール・拡大しないように
+  ['touchstart', 'touchmove'].forEach(function (t) {
+    cv.addEventListener(t, function (e) { e.preventDefault(); }, { passive: false });
+  });
+  document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
+  window.addEventListener('resize', function () { if (state.screen === 'draw') resizeCanvas(); });
+
+  /* ───── タイマー ───── */
+  function fmt(sec) { var m = Math.floor(sec / 60), s = sec % 60; return m + ':' + (s < 10 ? '0' : '') + s; }
+  function tick() {
+    var left = Math.max(0, Math.ceil((state.endAt - Date.now()) / 1000));
+    $('timer').textContent = fmt(left);
+    $('timer').classList.toggle('last', left <= 10);
+    if (left <= 0) timeUp();
+  }
+
+  /* ───── お題を見る（押している間だけ）───── */
+  var peekBtn = $('peekBtn'), peekBox = $('peekBox');
+  function peekOn(e) {
+    if (state.phase !== 'drawing') return;
+    if (e) e.preventDefault();
+    peekBox.innerHTML = '';
+    var sm = document.createElement('small'); sm.textContent = 'お題（描く人に見せない・言わない）';
+    peekBox.appendChild(sm);
+    peekBox.appendChild(document.createTextNode(secret));
+    peekBox.classList.add('on'); peekBtn.classList.add('held');
+  }
+  function peekOff() {
+    peekBox.classList.remove('on'); peekBtn.classList.remove('held');
+    peekBox.textContent = '';                       // 離したら、お題の文字を画面から消す
+  }
+  peekBtn.addEventListener('pointerdown', peekOn);
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (t) { peekBtn.addEventListener(t, peekOff); });
+  peekBtn.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  peekBtn.addEventListener('keydown', function (e) { if (e.key === ' ' || e.key === 'Enter') peekOn(e); });
+  peekBtn.addEventListener('keyup', peekOff);
+  peekBtn.addEventListener('blur', peekOff);
+  document.addEventListener('visibilitychange', function () { if (document.hidden) peekOff(); });
+
+  /* ───── 進行 ───── */
+  $('goLevels').addEventListener('click', function () { unlockAudio(); show('levels'); });
+
+  Array.prototype.forEach.call(document.querySelectorAll('.level'), function (b) {
+    b.addEventListener('click', function () {
+      if (state.screen !== 'levels') return;
+      unlockAudio();
+      state.level = b.getAttribute('data-level');
+      $('readyLevel').textContent = state.round + '回目　難しさ：' + TOPICS[state.level].label;
+      $('start').disabled = false;
+      show('ready');
+    });
+  });
+  $('backLevels').addEventListener('click', function () { if (state.screen === 'ready') show('levels'); });
+
+  $('start').addEventListener('click', function () {
+    if (state.screen !== 'ready' || state.phase === 'drawing') return;
+    $('start').disabled = true;
+    unlockAudio();
+    secret = pickTopic(state.level);
+    strokes = []; cur = null;
+    $('hint').classList.remove('hidden');
+    $('banner').classList.add('hidden'); $('banner').textContent = '';
+    $('drawLevel').textContent = TOPICS[state.level].label;
+    $('drawControls').classList.remove('hidden');
+    $('afterControls').classList.add('hidden');
+    $('nextControls').classList.add('hidden');
+    $('clearBtn').classList.remove('hidden'); $('finishBtn').classList.remove('hidden');
+    $('clearBtn').textContent = '全部消す'; clearArmed = false;
+    $('answerBtn').disabled = false;
+    drawingEnabled = true;
+    state.phase = 'drawing';
+    state.endAt = Date.now() + SECONDS * 1000;
+    show('draw');
+    setRef();
+    tick();
+    clearInterval(state.timerId);
+    state.timerId = setInterval(tick, 250);
+    keepAwake(true);
+  });
+
+  // 全部消す：誤って押しても消えないよう、2回押しで消す
+  var clearArmed = false, clearTimer = 0;
+  $('clearBtn').addEventListener('click', function () {
+    if (state.phase !== 'drawing') return;
+    if (!clearArmed) {
+      clearArmed = true; $('clearBtn').textContent = 'もう一度押すと消えます';
+      clearTimeout(clearTimer);
+      clearTimer = setTimeout(function () { clearArmed = false; $('clearBtn').textContent = '全部消す'; }, 2500);
+      return;
+    }
+    clearArmed = false; $('clearBtn').textContent = '全部消す';
+    strokes = []; cur = null; redraw(); $('hint').classList.remove('hidden');
+  });
+
+  // 終わる：時間前でも終えられる（2回押し）
+  var finishArmed = false, finishTimer = 0;
+  $('finishBtn').addEventListener('click', function () {
+    if (state.phase !== 'drawing') return;
+    if (!finishArmed) {
+      finishArmed = true; $('finishBtn').textContent = 'もう一度押す';
+      clearTimeout(finishTimer);
+      finishTimer = setTimeout(function () { finishArmed = false; $('finishBtn').textContent = '終わる'; }, 2500);
+      return;
+    }
+    finishArmed = false; $('finishBtn').textContent = '終わる';
+    timeUp();
+  });
+
+  function timeUp() {
+    if (state.phase !== 'drawing') return;
+    state.phase = 'guess';
+    clearInterval(state.timerId);
+    drawingEnabled = false; cur = null;
+    peekOff();
+    $('timer').textContent = '0:00'; $('timer').classList.add('last');
+    $('clearBtn').classList.add('hidden'); $('finishBtn').classList.add('hidden');
+    $('drawControls').classList.add('hidden');
+    $('afterControls').classList.remove('hidden');
+    var b = $('banner'); b.innerHTML = '';
+    var big = document.createElement('div'); big.className = 'big'; big.textContent = '目を開けてOK！ これは何？';
+    var sub = document.createElement('div'); sub.className = 'sub'; sub.textContent = '描いた人が、自分の絵を見て答えてください';
+    b.appendChild(big); b.appendChild(sub);
+    b.classList.remove('hidden');
+    resizeCanvas();
+    chime();
+  }
+
+  $('answerBtn').addEventListener('click', function () {
+    if (state.phase !== 'guess') return;
+    $('answerBtn').disabled = true;
+    state.phase = 'answer';
+    var b = $('banner'); b.innerHTML = '';
+    var big = document.createElement('div'); big.className = 'big'; big.textContent = '正解は…';
+    var ans = document.createElement('div'); ans.className = 'answer'; ans.textContent = secret;
+    b.appendChild(big); b.appendChild(ans);
+    $('afterControls').classList.add('hidden');
+    $('nextControls').classList.remove('hidden');
+    resizeCanvas();
+  });
+
+  $('nextBtn').addEventListener('click', function () {
+    if (state.phase !== 'answer') return;
+    state.phase = 'idle';
+    state.round += 1;
+    secret = '';
+    keepAwake(false);
+    $('roundLabel').textContent = state.round + '回目（描く人を交代）';
+    show('levels');
+  });
+})();
+</script>
+</body>
+</html>
